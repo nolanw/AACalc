@@ -19,7 +19,7 @@
  *
  *	AACalc version:
  *	last major revision author: Greg Massaro
- *	date of last major revision: 11/19/2010
+ *	date of last major revision: 01/16/2011
  *
  *	This file is part of AACalc.
  *
@@ -34,7 +34,7 @@
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ *	along with AACalc.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
@@ -78,7 +78,6 @@ function counthits ($shots, $dice) { #returns number of hits rolled on X dice fo
 				if ($roll <= 4) $hits++;
 				$dice[4][]=$roll;
 			}
-		
 			unset ($dice['LHTR_HBoms']);
 		}
 		foreach ($shots as $target => $count) {
@@ -100,20 +99,38 @@ function counthits ($shots, $dice) { #returns number of hits rolled on X dice fo
 }
 
 //takeshots determine the number and type of dice to be rolled for a given force
-function takeshots ($force, $side) {
+function takeshots ($force, $side, $flag=false) { //flag is optional boolean that keeps track if air units have fired already
 	global $unitspecs, $options, $t;
 	$hits=0;
 	$special=array();
 	
 	//possible unit Att and Def values...as of yet, nothing hits on a  6
 	$shots=array (1=>0, 2=>0, 3=>0, 4=>0, 5=>0);
-	foreach ($force as $type => $units) {
-		if ($units * $unitspecs[$type][$side]>0 && $type !== 'Sub' && $type!== 'SSub' &&
-			$type!== 'Fig' && $type!== 'JFig' && $type!== 'Bom' && $type!== 'HBom') {
-			$shots[$unitspecs[$type][$side]] += $force[$type];
+	
+	//if AA50 or AA1942 and air units had no assisting Destroyers, but rolled vs subs already, then don't roll for air again
+	if (($_REQUEST['ruleset']=='AA50') or ($_REQUEST['ruleset']=='AA1942')) {
+		if ($flag) {
+			foreach ($force as $type => $units) {
+				if ($units * $unitspecs[$type][$side]>0 && $type !== 'Sub' && $type!== 'SSub' &&
+				$type!== 'Fig' && $type!== 'JFig' && $type!== 'Bom' && $type!== 'HBom') {
+					$shots[$unitspecs[$type][$side]] += $force[$type];
+				}
+			}
+		} else {
+			foreach ($force as $type => $units) {
+				if ($units * $unitspecs[$type][$side]>0 && $type !== 'Sub' && $type!== 'SSub') {
+					$shots[$unitspecs[$type][$side]] += $force[$type];
+				}
+			}
+		}
+	} else {
+		foreach ($force as $type => $units) {
+			if ($units * $unitspecs[$type][$side]>0 && $type !== 'Sub' && $type!== 'SSub') {
+				$shots[$unitspecs[$type][$side]] += $force[$type];
+			}
 		}
 	}
-	
+
 	// correct for improved attack strength of infantry with artillery and advanced artillery
 	if ($options['landbattle'] && $side=='attack' && isset($force['Inf']) && (isset($force ['Art'])||(isset($force ['AArt']))))  { 
 		if (isset($force ['Art'])) {
@@ -249,11 +266,7 @@ function airattack ($force, $side) {
 	$result=counthits($shots, array());
 	$result ['hit_type']='land';
 	if ($options['seabattle']) {
-		if ((($_REQUEST['ruleset']=='AA50') or ($_REQUEST['ruleset']=='AA1942')) && (!isset($force['Des']))) {
-			$result['hit_type'] = 'seanosub';
-		} else {
-			$result['hit_type'] = 'sea';
-		}
+		$result['hit_type'] = 'seanosub';
 	}
 	return $result;
 }
@@ -356,30 +369,47 @@ function skirmish ($aforce, $dforce) {
 			
 		}
 	}
-	
+
+	//if AA50/AA1942 AND attacker has air, but no destroyer, and defender has subs, then
 	//find hits scored by air (so their hits can be applied to subs or not with DD interaction)
-	if (has_air($aforce)) {
-		$avals['norm']=airattack($aforce, 'attack'); 
-		$avals['totalhits']+=$avals['norm']['hits'];
-		$air_a=true;
-		//store result from airattack function in a temp array to be merged with the takeshots results later
-		$airavals=$avals;
-	}
-	if (has_air($dforce)) {
-		$dvals['norm']=airattack($dforce, 'defend');
-		$dvals['totalhits']+=$dvals['norm']['hits'];
-		$air_d=true;
-		//store result from airattack function in a temp array to be merged with the takeshots results later
-		$airdvals=$dvals;
+	$air_a=false; //reset boolean flags that keep track if air have already fired in this round of combat
+	$air_d=false;
+	if (($_REQUEST['ruleset']=='AA50') or ($_REQUEST['ruleset']=='AA1942')) {
+		if ((has_air($aforce)) && (!isset($aforce['Des'])) && (has_sub($dforce))) {
+
+			//if there are nonsubs in the defenders, then roll for attacking air units
+			if (nonsubs($dforce)) {
+				$avals['norm']=airattack($aforce, 'attack'); 
+				$avals['totalhits']+=$avals['norm']['hits'];
+				//store result from airattack function in a temp array to be merged with the takeshots results later
+				$airavals=$avals;
+			}
+
+			//set boolean flag to indicate air have fired in this round already
+			$air_a=true;
+		}
+		if ((has_air($dforce)) && (!isset($dforce['Des'])) && (has_sub($aforce))) {
+
+			//if there are nonsubs in the attackers, then roll for defending air units
+			if (nonsubs($aforce)) {			
+				$dvals['norm']=airattack($dforce, 'defend');
+				$dvals['totalhits']+=$dvals['norm']['hits'];	
+				//store result from airattack function in a temp array to be merged with the takeshots results later
+				$airdvals=$dvals;
+			}
+
+			//set boolean flag to indicate air have fired in this round already
+			$air_d=true;
+		}
 	}
 
 	//find number of hits scored by all regular remaining units
 	if (nonsubs($aforce)) {
-		$avals['norm']=takeshots($aforce, 'attack'); 
+		$avals['norm']=takeshots($aforce, 'attack', $air_a); //pass tracking flag if air has already fired
 		$avals['totalhits']+=$avals['norm']['hits'];
 	}
 	if (nonsubs($dforce) or $options['AA']) {
-		$dvals['norm']=takeshots($dforce, 'defend');
+		$dvals['norm']=takeshots($dforce, 'defend', $air_d); //pass tracking flag if air has already fired
 		$dvals['totalhits']+=$dvals['norm']['hits'];
 	}
 	
@@ -428,43 +458,43 @@ function skirmish ($aforce, $dforce) {
 	}		
 	
 	//merge the attacker airvals and vals arrays into one so dice get displayed correctly.
-	if ($air_a) {
-	$avals["totalhits"]+= $airavals["totalhits"];
-	$avals["norm"]["hits"]+= $airavals["norm"]["hits"];
-	$avals["norm"]["punch"]+= $airavals["norm"]["punch"];
-	$avals["norm"]["dice"]["rolled"]+= $airavals["norm"]["dice"]["rolled"];
+	if ($air_a && (isset($airavals['norm']))) {
+		$avals["totalhits"]+= $airavals["totalhits"];
+		$avals["norm"]["hits"]+= $airavals["norm"]["hits"];
+		$avals["norm"]["punch"]+= $airavals["norm"]["punch"];
+		$avals["norm"]["dice"]["rolled"]+= $airavals["norm"]["dice"]["rolled"];
 	
-	//ADD dice rolls at 1 3 4 5 (possible dice rolls for air units)
-	//may not need dice rolls at 2 or 6 until air is listed to hit at 2 or 6.
-	$index=array(1 /*,2*/,3,4,5 /*,6*/);
-	foreach ($index as $v) {
-		if ((array_key_exists($v,$airavals["norm"]["dice"])) && (array_key_exists($v,$avals["norm"]["dice"]))) {
-			$avals["norm"]["dice"][$v] = array_merge($airavals["norm"]["dice"][$v], $avals["norm"]["dice"][$v]);
-		} elseif (array_key_exists($v,$airavals["norm"]["dice"])) {
-			$avals["norm"]["dice"][$v] = $airavals["norm"]["dice"][$v];
+		//ADD dice rolls at 1 3 4 5 (possible dice rolls for air units)
+		//may not need dice rolls at 2 or 6 until air is listed to hit at 2 or 6.
+		$index=array(1 /*,2*/,3,4,5 /*,6*/);
+		foreach ($index as $v) {
+			if ((array_key_exists($v,$airavals["norm"]["dice"])) && (array_key_exists($v,$avals["norm"]["dice"]))) {
+				$avals["norm"]["dice"][$v] = array_merge($airavals["norm"]["dice"][$v], $avals["norm"]["dice"][$v]);
+			} elseif (array_key_exists($v,$airavals["norm"]["dice"])) {
+				$avals["norm"]["dice"][$v] = $airavals["norm"]["dice"][$v];
+			}
 		}
-	}
-	ksort ($avals["norm"]["dice"]);
+		ksort ($avals["norm"]["dice"]);
 	}
 	
 	//merge the defender airvals and vals arrays into one so dice get displayed correctly.
-	if ($air_d) {
-	$dvals["totalhits"]+= $airdvals["totalhits"];
-	$dvals["norm"]["hits"]+= $airdvals["norm"]["hits"];
-	$dvals["norm"]["punch"]+= $airdvals["norm"]["punch"];
-	$dvals["norm"]["dice"]["rolled"]+= $airdvals["norm"]["dice"]["rolled"];
+	if ($air_d && (isset($airdvals['norm']))) {
+		$dvals["totalhits"]+= $airdvals["totalhits"];
+		$dvals["norm"]["hits"]+= $airdvals["norm"]["hits"];
+		$dvals["norm"]["punch"]+= $airdvals["norm"]["punch"];
+		$dvals["norm"]["dice"]["rolled"]+= $airdvals["norm"]["dice"]["rolled"];
 	
-	//ADD dice rolls at 1 3 4 5 (possible dice rolls for air units)
-	//may not need dice rolls at 2 or 6 until air is listed to hit at 2 or 6.
-	$index=array(1 /*,2*/,3,4,5 /*,6*/);
-	foreach ($index as $v) {
-		if ((array_key_exists($v,$airdvals["norm"]["dice"])) && (array_key_exists($v,$dvals["norm"]["dice"]))) {
-			$dvals["norm"]["dice"][$v] = array_merge($airdvals["norm"]["dice"][$v], $dvals["norm"]["dice"][$v]);
-		} elseif (array_key_exists($v,$airdvals["norm"]["dice"])) {
-			$dvals["norm"]["dice"][$v] = $airdvals["norm"]["dice"][$v];
+		//ADD dice rolls at 1 3 4 5 (possible dice rolls for air units)
+		//may not need dice rolls at 2 or 6 until air is listed to hit at 2 or 6.
+		$index=array(1 /*,2*/,3,4,5 /*,6*/);
+		foreach ($index as $v) {
+			if ((array_key_exists($v,$airdvals["norm"]["dice"])) && (array_key_exists($v,$dvals["norm"]["dice"]))) {
+				$dvals["norm"]["dice"][$v] = array_merge($airdvals["norm"]["dice"][$v], $dvals["norm"]["dice"][$v]);
+			} elseif (array_key_exists($v,$airdvals["norm"]["dice"])) {
+				$dvals["norm"]["dice"][$v] = $airdvals["norm"]["dice"][$v];
+			}
 		}
-	}
-	ksort ($dvals["norm"]["dice"]);
+		ksort ($dvals["norm"]["dice"]);
 	}
 	
 	return array (

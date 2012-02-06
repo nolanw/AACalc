@@ -34,7 +34,7 @@
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ *	along with AACalc.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
@@ -133,7 +133,33 @@ if (isset($_REQUEST['battle'])) {
 						$outcome=array(
 							'att' => array('force' => array(), 'lost' => ($att[$t]['force']), 'vals'=> array(),),
 							'def' => array('force' => ($def[$t]['force']), 'lost' => array(), 'vals' => array(),),
-						);					
+						);
+
+					/* For when only sub(s) goes up against only trn/air defenders OR only air unit(s) go up against only
+						trn/sub(s) defenders */
+
+					} elseif ((has_sub($att[$t]['force'])) && (!nonsubs($att[$t]['force'])) && (has_tra($def[$t]['force']))
+						&& (has_air($def[$t]['force'])) && (!has_sea_notrn($def[$t]['force']))
+						){
+						$outcome=array(
+							'att' => array('force' => ($att[$t]['force']), 'lost' => array(), 'vals'=> array(),),
+							'def' => array('force' => ($def[$t]['force']), 'lost' => ($def[$t]['force']), 'vals' => array(),),
+						);
+						unset($outcome['def']['force']['Tra']);
+						unset($outcome['def']['lost']['Fig']);
+						unset($outcome['def']['lost']['JFig']);
+
+					} elseif ((has_air($att[$t]['force'])) && (!nonair($att[$t]['force'])) && (has_tra($def[$t]['force']))
+						&& (has_sub($def[$t]['force'])) && (!has_sea_notrn_nosub($def[$t]['force'])) && (!has_air($def[$t]['force']))
+						){
+						$outcome=array(
+							'att' => array('force' => ($att[$t]['force']), 'lost' => array(), 'vals'=> array(),),
+							'def' => array('force' => ($def[$t]['force']), 'lost' => ($def[$t]['force']), 'vals' => array(),),
+						);
+						unset($outcome['def']['force']['Tra']);
+						unset($outcome['def']['lost']['Sub']);
+						unset($outcome['def']['lost']['SSub']);
+
 					//DRAW condition where both Attacker and Defender only have transports left.
 					} elseif (((!has_seapunch($att[$t]['force'])) && (has_tra($att[$t]['force'])))
 						&& ((!has_seapunch($def[$t]['force'])) && (has_tra($def[$t]['force'])))
@@ -156,7 +182,7 @@ if (isset($_REQUEST['battle'])) {
 				} else {
 					$outcome=skirmish($att[$t]['force'], $def[$t]['force']);
 				}
-				
+			
 				//condition to void subs dice rolls for an only sub attack force vs an only air defense force.
 				if ((has_sub($att[$t]['force'])) && (!nonsubs($att[$t]['force']))
 					&& (has_air($def[$t]['force'])) && (!nonair($def[$t]['force']))

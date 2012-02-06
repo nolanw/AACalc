@@ -31,7 +31,7 @@
  *	GNU General Public License for more details.
  *
  *	You should have received a copy of the GNU General Public License
- *	along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ *	along with AACalc.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
 
@@ -316,6 +316,19 @@ function has_tra ($force) {
 function has_sea ($force) {
 	return isset($force['Sub']) or isset($force['SSub']) or isset($force['Tra']) or isset($force['Car'])
 	or isset($force['Des']) or isset($force['Bat']) or isset($force['dBat']) or isset($force['Cru']);
+}
+
+//determine if a force has any non-transport sea units and returns a boolean...only used for AA50 and AA1942 rulesets to deal with
+// defenseless transports
+function has_sea_notrn ($force) {
+	return isset($force['Sub']) or isset($force['SSub']) or isset($force['Car'])
+	or isset($force['Des']) or isset($force['Bat']) or isset($force['dBat']) or isset($force['Cru']);
+}
+
+//determine if a force has any non-sub/transport sea units and returns a boolean...only used for AA50 and AA1942 rulesets to deal with
+// defenseless transports
+function has_sea_notrn_nosub ($force) {
+	return isset($force['Car']) or isset($force['Des']) or isset($force['Bat']) or isset($force['dBat']) or isset($force['Cru']);
 }
 
 //used to determine if a force has something besides only air units left so subs are assigned a dice roll or not.
