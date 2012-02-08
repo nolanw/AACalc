@@ -13,7 +13,7 @@
  *		that apply to Axis and Allies gameplay scenarios.
  *
  *	primary author: Daniel Rempel
- *	additional authors: Aaron Kreider, Greg Massaro
+ *	additional authors: Aaron Kreider, Greg Massaro, David Jensen
  *  
  *	Copyright 2010, Daniel Rempel, Aaron Kreider, Greg Massaro
  *
@@ -38,6 +38,7 @@
  * 
  */
 
+include('load.php');
 include('init.php');
 include('combatfunctions.php');
 include('outputfunctions.php');
@@ -400,6 +401,22 @@ if (!$options ['nounits'] && $options['legal'] && (!isset($options['gameidok']) 
 
 <html>
 <head>
+
+<?php if (GOOGLE_ANALYTICS_ENABLED): ?>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', '<?php echo GOOGLE_ANALYTICS_ID ?>']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+<?php endif; ?>
 
 <script language="javascript"></script>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>

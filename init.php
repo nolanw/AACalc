@@ -37,6 +37,18 @@
  * 
  */
 
+/* Load the configuration */
+// First load the defaults, next look for the local config, which will override the defaults.
+define( 'ABSPATH', dirname(__FILE__) . '/' );
+if ( !file_exists( ABSPATH . 'config.php') ) {
+	if ( ! is_writable(ABSPATH) ) {
+		exit("<p>Config is not writeable. Please manually copy config-sample.php to config.php</p>");
+	}
+	copy( ABSPATH . 'config-sample.php', ABSPATH . 'config.php');
+}
+require_once( ABSPATH . 'config.php');
+
+/** Not really a standard way of doing things. TODO: cleanup the headerextra stuff **/
 if (isset($headextra)) {
 	$headextra.='<link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" />';
 } else {
