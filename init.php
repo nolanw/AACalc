@@ -48,12 +48,22 @@ if ( !file_exists( ABSPATH . 'config.php') ) {
 }
 require_once( ABSPATH . 'config.php');
 
+echo '<html>
+  <head>
+    <title>' , PAGE_TITLE , '</title>
+  </head>
+<body>';
+
+echo '<h1>' , PAGE_HEADING , '</h1>';
+
 /** Not really a standard way of doing things. TODO: cleanup the headerextra stuff **/
+/*
 if (isset($headextra)) {
 	$headextra.='<link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" />';
 } else {
 	echo '<html><head><title>AACalc</title><link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" /></head><body>';
 }
+*/
 
 $t=0; $b=0; $rounds=20; $stalemate=false;$resetrounds=false;
 $round=1;

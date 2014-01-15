@@ -12,6 +12,8 @@
  *	additional authors: Aaron Kreider, Greg Massaro
  */
 
+define('PAGE_TITLE', 'AACalc');
+define('PAGE_HEADING', 'AACalc');
 define('GOOGLE_ANALYTICS_ENABLED', false); 
 //define('GOOGLE_ANALYTICS_ID', 'UA-000000-1');
 ?>
