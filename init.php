@@ -51,6 +51,7 @@ require_once( ABSPATH . 'config.php');
 echo '<html>
   <head>
     <title>' , PAGE_TITLE , '</title>
+    <link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" />
   </head>
 <body>';
 
