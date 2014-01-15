@@ -45,6 +45,12 @@ include('outputfunctions.php');
 include('functions.php');
 include('emogrifier.php'); //3rd party open source php code to deal with email and CSS under MIT license
 
+if (file_exists(ABSPATH . CUSTOM_HEADER)) {
+  include(ABSPATH . CUSTOM_HEADER);
+}
+
+echo '<h1>' , PAGE_HEADING , '</h1>';
+
 updateunits(); //call function to update unitspecs if a ruleset other than AA50 and AA1942 is set.
 updateools(); //call function to update OOLs if a rulset other than AA50 and AA1942 is set.
 
@@ -614,6 +620,12 @@ function uncheck(CheckboxID)
     document.getElementById(CheckboxID).checked=false
 }
 </script>
+
+<?php
+if (file_exists(ABSPATH . CUSTOM_FOOTER)) {
+  include(ABSPATH . CUSTOM_FOOTER);
+}
+?>
 
 </body>
 </html>

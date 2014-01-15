@@ -61,11 +61,6 @@ echo '
   </head>
 <body>';
 
-if (file_exists(ABSPATH . CUSTOM_HEADER)) {
-  include(ABSPATH . CUSTOM_HEADER);
-}
-
-echo '<h1>' , PAGE_HEADING , '</h1>';
 
 /** Not really a standard way of doing things. TODO: cleanup the headerextra stuff **/
 /*
