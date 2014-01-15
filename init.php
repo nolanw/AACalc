@@ -51,7 +51,13 @@ require_once( ABSPATH . 'config.php');
 echo '<html>
   <head>
     <title>' , PAGE_TITLE , '</title>
-    <link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" />
+    <link rel="stylesheet" type="text/css" media="screen" title="Normal" href="aa.css" />';
+
+if ( file_exists(ABSPATH . CUSTOM_CSS)) {
+echo '
+    <link rel="stylesheet" type="text/css" media="screen" title="Normal" href="', CUSTOM_CSS , '" />';
+}
+echo '
   </head>
 <body>';
 
