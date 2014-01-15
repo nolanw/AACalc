@@ -1,4 +1,4 @@
-<p><em>
+<p>
 </p>
 
 	<h2>Links to other on-line Axis & Allies resources:</h2>
