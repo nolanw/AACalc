@@ -59,9 +59,9 @@ $luckmodes=array(
 );
 //sets $luckselect string to HTML radio buttons to be put on the form later on...
 foreach ($luckmodes as $mode=>$label) {
-	$luckselect .= '<input name="luck" type="radio" value="'.$mode.'"';
+	$luckselect .= '<label><input name="luck" type="radio" value="'.$mode.'"';
 	if ((isset($_REQUEST['luck']) && $_REQUEST['luck']==$mode) or (!isset($_REQUEST['luck']) && $mode=='pure')) $luckselect .= ' checked';
-	$luckselect .= '/>'.$label.'<br />';
+	$luckselect .= '/>'.$label.'</label><br />';
 }
 
 $repmodes=array(
@@ -73,9 +73,9 @@ $repmodes=array(
 //sets $repselect string to HTML radio buttons to be put on the form later on...
 $repselect="";
 foreach ($repmodes as $mode=>$label) {
-	$repselect .= '<input name="reps" type="radio" value="'.$mode.'"';
+	$repselect .= '<label><input name="reps" type="radio" value="'.$mode.'"';
 	if ((isset($_REQUEST['reps']) && $_REQUEST['reps']==$mode) or (!isset($_REQUEST['reps']) && $mode=='1') ) $repselect .= ' checked';
-	$repselect .= ' />'.$label.'<br />';
+	$repselect .= ' />'.$label.'</label><br />';
 }
 $roundsmodes=array(
 	'1'=>'one',
@@ -86,9 +86,9 @@ $roundsmodes=array(
 //sets $roundselect string to HTML radio buttons to be put on the form later on...
 $roundsselect="";
 foreach ($roundsmodes as $mode=>$label) {
-	$roundsselect .= '<input name="rounds" type="radio" value="'.$mode.'"';
+	$roundsselect .= '<label><input name="rounds" type="radio" value="'.$mode.'"';
 	if ((isset($_REQUEST['rounds']) && $_REQUEST['rounds']==$mode) or (!isset($_REQUEST['rounds']) && $mode=='1') ) $roundsselect .= ' checked';
-	$roundsselect .= ' />'.$label.'<br />';
+	$roundsselect .= ' />'.$label.'</label><br />';
 }
 
 //set defaults for other battle options like land units to die last/strafe/punch ratio...
@@ -165,24 +165,24 @@ echo '
 			<th colspan="16" style="text-align: center; font-size: 60%">tip: hover over unit labels to see the full name and stats for each unit
 			</th>
 			<td rowspan="8" valign="top" style="background: white; color: black; font-size: 60%">
-				<input type="text" size="1" name="mustland" value='.$mustland.' style="width: 2ex; text-align: center;"/> Atk. Tra / land units die last<br />
-				<input type="text" size="1" name="abortratio" maxlength=3 value='.$abortratio.' style="width: 2ex; text-align: center;" title="Attack will abort once punch falls below this percentage of the defender\'s count or punch"/>% min. atk. punch ratio<br />
-				<input type="text" size="1" name="saveunits" value='.$saveunits.' style="width: 2ex; text-align: center;"/> A. units must survive<br />
-				<input type="text" size="1" name="strafeunits" value='.$strafeunits.' style="width: 2ex; text-align: center;"/> D. units to be left alive (strafe)<br />
+				<label><input type="text" size="1" name="mustland" value='.$mustland.' style="width: 2ex; text-align: center;"/> Atk. Tra / land units die last</label><br />
+				<label><input type="text" size="1" name="abortratio" maxlength=3 value='.$abortratio.' style="width: 2ex; text-align: center;" title="Attack will abort once punch falls below this percentage of the defender\'s count or punch"/>% min. atk. punch ratio</label><br />
+				<label><input type="text" size="1" name="saveunits" value='.$saveunits.' style="width: 2ex; text-align: center;"/> A. units must survive</label><br />
+				<label><input type="text" size="1" name="strafeunits" value='.$strafeunits.' style="width: 2ex; text-align: center;"/> D. units to be left alive (strafe)</label><br />
 				
-				<input type="checkbox" name="asubschicken" '.$asubschickenchecked.' />Att. subs chicken<br />
-				<input type="checkbox" name="dsubschicken" '.$dsubschickenchecked.' />Def. subs chicken<br />
-				<input type="checkbox" id="AA" name="AA" '.$aachecked.' onclick="uncheck(\'AAr\')" title="aa guns fire at a 1"/>AA gun 
-				<input type="checkbox" id="AAr" name="AAr" '.$aarchecked.' onclick="uncheck(\'AA\')" title="aa guns fire at a 2"';
+				<label><input type="checkbox" name="asubschicken" '.$asubschickenchecked.' />Att. subs chicken</label><br />
+				<label><input type="checkbox" name="dsubschicken" '.$dsubschickenchecked.' />Def. subs chicken</label><br />
+				<label><input type="checkbox" id="AA" name="AA" '.$aachecked.' onclick="uncheck(\'AAr\')" title="aa guns fire at a 1"/>AA gun</label> 
+				<label><input type="checkbox" id="AAr" name="AAr" '.$aarchecked.' onclick="uncheck(\'AA\')" title="aa guns fire at a 2"';
 //get class set for AAradar checkbox to show or hide based on ruleset
 if (isset($_REQUEST['ruleset'])) {
 	if 	((($_REQUEST['ruleset'] == 'AA50') or ($_REQUEST['ruleset'] == 'Revised')) && ($tech)) {
-		echo ' class=""/><span id="txtAAr" class="">AA radar</span><br /><br />';
+		echo ' class=""/><span id="txtAAr" class="">AA radar</span></label><br /><br />';
 	} else {
-		echo ' class="noshow"/><span id="txtAAr" class="noshow">AA radar</span><br /><br />';
+		echo ' class="noshow"/><span id="txtAAr" class="noshow">AA radar</span></label><br /><br />';
 	}
 } else {
-	echo ' class="noshow"/><span id="txtAAr" class="noshow">AA radar</span><br /><br />';
+	echo ' class="noshow"/><span id="txtAAr" class="noshow">AA radar</span></label><br /><br />';
 }
 echo '			<input type="submit" name="battle" value="Evaluate units" /><br />
 				<input type="submit" name="battle" value="Swap units" /> <br />
@@ -368,10 +368,10 @@ echo '
 $rulesets=array ('AA1942', 'AA50', 'Revised', 'Classic', );
 foreach ($rulesets as $ruleset)
 {
-	echo '<input type="radio" name="ruleset" ';
+	echo '<label><input type="radio" name="ruleset" ';
 	if ((isset($_REQUEST['ruleset']) && $ruleset==$_REQUEST['ruleset']) or (!isset($_REQUEST['ruleset']) && $ruleset=='AA1942')) echo ' checked';
 	//onclick value calls javascript to change colors client side
-	echo " value=\"$ruleset\" onclick=\"ChangeColors('$ruleset')\" />$ruleset<br />";
+	echo " value=\"$ruleset\" onclick=\"ChangeColors('$ruleset')\" />$ruleset</label><br />";
 }
 echo '		</td>
 		</tr>
@@ -381,13 +381,13 @@ echo '		</td>
 	<tr>
 	<!--<td><b>PBEM<br />options:</b></td>-->
 		<td colspan=16 style="text-align: center">
-			Battle territory: <input type="text" name="territory"
+			<label>Battle territory: <input type="text" name="territory"
 			title="Enter comments such as the name of the territory being attacked."
-			value="'.$territory.'" style="width: 18ex;" />
-			Battle round #: <input type="text" name="round"
-			title="Enter the round of combat to start at" value="'.$_REQUEST['round'].'" style="width: 3ex; text-align: center;"/>
-			<br />E-mail result to: <input type="text" name="pbem"
-			title="Enter one to five e-mail addresses separated by spaces" value="'.$pbem.'" style="width: 37ex;"/>
+			value="'.$territory.'" style="width: 18ex;" /></label>
+			<label>Battle round #: <input type="text" name="round"
+			title="Enter the round of combat to start at" value="'.$_REQUEST['round'].'" style="width: 3ex; text-align: center;"/></label>
+			<br />E-mail result to: <label><input type="text" name="pbem"
+			title="Enter one to five e-mail addresses separated by spaces" value="'.$pbem.'" style="width: 37ex;"/></label>
 		</td>
 	</tr>
 	</table>
